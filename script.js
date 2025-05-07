@@ -1,42 +1,45 @@
-// Select all image divs
-const images = document.querySelectorAll('.image');
-
-// Track the dragged div
-let draggedImage = null;
-
-// Add event listeners for each image div
-images.forEach((imgDiv, index) => {
-  // Assign unique ids like div1, div2, etc.
-  imgDiv.id = `div${index + 1}`;
-
-  // When dragging starts, store the dragged element and set opacity
-  imgDiv.addEventListener('dragstart', (e) => {
-    draggedImage = e.target;
-    setTimeout(() => {
-      draggedImage.style.opacity = '0.5'; // Make the dragged element semi-transparent
-    }, 0);
-  });
-
-  // When dragging ends, reset opacity
-  imgDiv.addEventListener('dragend', () => {
-    draggedImage.style.opacity = '1';
-    draggedImage = null;
-  });
-
-  // Allow drop by preventing default behavior
-  imgDiv.addEventListener('dragover', (e) => {
-    e.preventDefault();
-  });
-
-  // Handle the drop and swap the images
-  imgDiv.addEventListener('drop', (e) => {
-    e.preventDefault();
-
-    // Swap the background images if the dragged image is not the same as the target
-    if (draggedImage !== imgDiv) {
-      const draggedImageStyle = draggedImage.style.backgroundImage;
-      draggedImage.style.backgroundImage = imgDiv.style.backgroundImage;
-      imgDiv.style.backgroundImage = draggedImageStyle;
-    }
-  });
-});
+window.onload = function() {
+	let divs = document.querySelectorAll('.image');
+	for (let i = 0; i < divs.length; i++) {
+	  divs[i].setAttribute('id', 'div' + (i + 1));
+	  divs[i].addEventListener("dragstart", handleDragStart, false);
+	  divs[i].addEventListener("dragover", handleDragOver, false);
+	  divs[i].addEventListener("drop", handleDrop, false);
+	}
+  }
+   
+  let dragSrcEl = null;
+   
+  function handleDragStart(e) {
+   
+	dragSrcEl = this;
+	e.dataTransfer.effectAllowed = 'move';
+  }
+   
+  function handleDragOver(e) {
+	if (e.preventDefault) {
+	  e.preventDefault();
+	}
+	e.dataTransfer.dropEffect = 'move';
+	return false;
+  }
+   
+  function handleDrop(e) {
+	if (e.stopPropagation) {
+	  e.stopPropagation();
+	}
+	if (dragSrcEl != this) {
+	  let parent = document.querySelector('#parent');
+	  let srcIndex = Array.prototype.indexOf.call(parent.children, dragSrcEl);
+	  let targetIndex = Array.prototype.indexOf.call(parent.children, this);
+	  if (srcIndex < targetIndex) {
+		parent.insertBefore(dragSrcEl, this.nextSibling);
+		parent.insertBefore(this, parent.children[srcIndex]);
+	  } else {
+		parent.insertBefore(this, dragSrcEl);
+		parent.insertBefore(dragSrcEl, parent.children[targetIndex]);
+	  }
+	}
+	return false;
+  }
+  
